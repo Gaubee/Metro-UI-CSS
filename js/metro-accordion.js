@@ -1,17 +1,17 @@
-(function( $ ) {
+(function($) {
     $.widget("metro.accordion", {
 
         version: "1.0.0",
 
         options: {
             closeAny: true,
-            open: function(frame){},
-            action: function(frame){}
+            open: function(frame) {},
+            action: function(frame) {}
         },
 
         _frames: {},
 
-        _create: function(){
+        _create: function() {
             var element = this.element;
 
             if (element.data('closeany') != undefined) this.options.closeAny = element.data('closeany');
@@ -21,13 +21,15 @@
             this.init();
         },
 
-        init: function(){
+        init: function() {
             var that = this;
 
-            this._frames.each(function(){
+            that._frames.each(function() {
                 var frame = this,
-                    a = $(this).children(".heading"),
-                    content = $(this).children(".content");
+                    $frame = $(this),
+                    frame = $frame[0],
+                    a = $frame.children(".heading"),
+                    content = $frame.children(".content");
 
                 if ($(a).hasClass("active") && !$(a).attr('disabled') && $(a).data('action') != 'none') {
                     $(content).show();
@@ -35,36 +37,48 @@
                 } else {
                     $(a).addClass("collapsed");
                 }
+            });
+            that.element.on("click", ".accordion-frame>.heading", function(e) {
+                var heading = this,
+                    $heading = $(heading),
+                    $frame = $heading.parent(),
+                    $content = $frame.children(".content");
 
-                a.on('click', function(e){
-                    e.preventDefault();
-                    if ($(this).attr('disabled') || $(this).data('action') == 'none') return;
+                if ($heading.hasClass("active") && !$heading.attr('disabled') && $heading.data('action') != 'none') {
+                    $content.show();
+                    $heading.removeClass("collapsed");
+                } else {
+                    $heading.addClass("collapsed");
+                }
+                e.preventDefault();
 
-                    if (that.options.closeAny) that._closeFrames();
+                if ($heading.attr('disabled') || $heading.data('action') == 'none') return;
 
-                    if ($(content).is(":hidden")) {
-                        $(content).slideDown();
-                        $(this).removeClass("collapsed");
-                        that._trigger("frame", e, {frame: frame});
-                        that.options.open(frame);
-                    } else {
-                        $(content).slideUp();
-                        $(this).addClass("collapsed");
-                    }
-                    that.options.action(frame);
-                });
+                if (that.options.closeAny) that._closeFrames();
+
+                if ($content.is(":hidden")) {
+                    $content.slideDown();
+                    $heading.removeClass("collapsed");
+                    that._trigger("frame", e, {
+                        frame: frame
+                    });
+                    that.options.open(frame);
+                } else {
+                    $content.slideUp();
+                    $heading.addClass("collapsed");
+                }
+                that.options.action(frame);
             });
         },
 
-        _closeFrames: function(){
+        _closeFrames: function() {
             this._frames.children(".content").slideUp().parent().children('.heading').addClass("collapsed");
         },
 
-        _destroy: function(){},
+        _destroy: function() {},
 
-        _setOption: function(key, value){
+        _setOption: function(key, value) {
             this._super('_setOption', key, value);
         }
     })
-})( jQuery );
-
+})(jQuery);
